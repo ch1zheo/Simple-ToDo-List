@@ -10,9 +10,11 @@ from PyQt6.QtWidgets import (
 from database import Database
 from i18n import Translator
 from note_dialog import NoteDialog, NoteViewDialog
+from notifications import NotificationManager
+from resources import app_icon
+
 
 class NoteItemWidget(QWidget):
-    """Строка списка: заголовок заметки + когда она была изменена."""
     def __init__(self, title: str, meta_text: str, wrap_width: int = 0):
         super().__init__()
         layout = QVBoxLayout(self)
@@ -39,8 +41,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.db = Database()
         self.translator = Translator("en")
+        self._force_quit = False
+        self.notifications = NotificationManager(self.db, self.translator, self)
 
         self.setMinimumSize(560, 640)
+        self.setWindowIcon(app_icon())
         self._build_ui()
         self.retranslate_ui()
         QTimer.singleShot(0, self.load_notes)
@@ -117,6 +122,7 @@ class MainWindow(QMainWindow):
         self.new_btn.setText(t("btn_new"))
         self.edit_btn.setText(t("btn_edit"))
         self.delete_btn.setText(t("btn_delete"))
+        self.notifications.retranslate_ui()
         self._update_status()
 
     def _on_language_changed(self):
@@ -143,7 +149,7 @@ class MainWindow(QMainWindow):
     def load_notes(self):
         self.notes_list.clear()
         notes = self.db.get_all_notes()
-        
+
         wrap_width = max(self.notes_list.viewport().width() - 28, 200)
 
         if not notes:
@@ -162,7 +168,10 @@ class MainWindow(QMainWindow):
             note_id, title, content, created_at, updated_at, reminder_dt, repeat_rule = note
             item = QListWidgetItem()
             item.setData(Qt.ItemDataRole.UserRole, note_id)
-            widget = NoteItemWidget(title, self._format_meta(created_at, updated_at), wrap_width)
+            meta_text = self._format_meta(created_at, updated_at)
+            if reminder_dt:
+                meta_text += "   •   " + self.translator.t("reminder_prefix") + ": " + self._format_datetime(reminder_dt)
+            widget = NoteItemWidget(title, meta_text, wrap_width)
             item.setSizeHint(widget.sizeHint())
             self.notes_list.addItem(item)
             self.notes_list.setItemWidget(item, widget)
@@ -182,8 +191,8 @@ class MainWindow(QMainWindow):
     def new_note(self):
         dialog = NoteDialog(self.translator, self)
         if dialog.exec():
-            title, content = dialog.get_values()
-            self.db.add_note(title, content)
+            title, content, reminder_dt, repeat_rule = dialog.get_values()
+            self.db.add_note(title, content, reminder_dt, repeat_rule)
             self.load_notes()
 
     def view_note(self):
@@ -219,12 +228,15 @@ class MainWindow(QMainWindow):
         note = self.db.get_note(note_id)
         if note is None:
             return
-        _, title, content, *_ = note
+        _, title, content, created_at, updated_at, reminder_dt, repeat_rule = note
 
-        dialog = NoteDialog(self.translator, self, title=title, content=content)
+        dialog = NoteDialog(
+            self.translator, self, title=title, content=content,
+            reminder_datetime=reminder_dt, repeat_rule=repeat_rule
+        )
         if dialog.exec():
-            new_title, new_content = dialog.get_values()
-            self.db.update_note(note_id, new_title, new_content)
+            new_title, new_content, new_reminder_dt, new_repeat_rule = dialog.get_values()
+            self.db.update_note(note_id, new_title, new_content, new_reminder_dt, new_repeat_rule)
             self.load_notes()
 
     def delete_note(self):
@@ -250,9 +262,19 @@ class MainWindow(QMainWindow):
             self.db.delete_note(note_id)
             self.load_notes()
 
+    def force_quit(self):
+        self._force_quit = True
+        self.close()
+
     def closeEvent(self, event):
-        self.db.close()
-        event.accept()
+        if self._force_quit:
+            self.notifications.stop()
+            self.db.close()
+            event.accept()
+        else:
+            event.ignore()
+            self.hide()
+            self.notifications.notify_minimized()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
