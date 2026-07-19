@@ -5,7 +5,6 @@ from datetime import datetime
 DB_PATH = Path(__file__).parent / "notes.db"
 
 class Database:
-    """Обёртка над SQLite для хранения заметок."""
     def __init__(self, db_path: Path = DB_PATH):
         self.connection = sqlite3.connect(db_path)
         self.connection.execute("PRAGMA foreign_keys = ON")
@@ -40,25 +39,50 @@ class Database:
         )
         return cursor.fetchone()
 
-    def add_note(self, title: str, content: str) -> int:
+    def add_note(self, title: str, content: str, reminder_datetime: str = None, repeat_rule: str = None) -> int:
         now = datetime.now().isoformat(timespec="seconds")
         cursor = self.connection.execute(
-            "INSERT INTO notes (title, content, created_at, updated_at) VALUES (?, ?, ?, ?)",
-            (title, content, now, now)
+            "INSERT INTO notes (title, content, created_at, updated_at, reminder_datetime, repeat_rule) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (title, content, now, now, reminder_datetime, repeat_rule)
         )
         self.connection.commit()
         return cursor.lastrowid
 
-    def update_note(self, note_id: int, title: str, content: str):
+    def update_note(self, note_id: int, title: str, content: str,
+                     reminder_datetime: str = None, repeat_rule: str = None):
         now = datetime.now().isoformat(timespec="seconds")
         self.connection.execute(
-            "UPDATE notes SET title = ?, content = ?, updated_at = ? WHERE id = ?",
-            (title, content, now, note_id)
+            "UPDATE notes SET title = ?, content = ?, updated_at = ?, "
+            "reminder_datetime = ?, repeat_rule = ? WHERE id = ?",
+            (title, content, now, reminder_datetime, repeat_rule, note_id)
         )
         self.connection.commit()
 
     def delete_note(self, note_id: int):
         self.connection.execute("DELETE FROM notes WHERE id = ?", (note_id,))
+        self.connection.commit()
+
+    def get_due_reminders(self, now_iso: str):
+        cursor = self.connection.execute(
+            "SELECT id, title, content, reminder_datetime, repeat_rule FROM notes "
+            "WHERE reminder_datetime IS NOT NULL AND reminder_datetime <= ?",
+            (now_iso,)
+        )
+        return cursor.fetchall()
+
+    def set_reminder(self, note_id: int, reminder_datetime: str, repeat_rule: str):
+        self.connection.execute(
+            "UPDATE notes SET reminder_datetime = ?, repeat_rule = ? WHERE id = ?",
+            (reminder_datetime, repeat_rule, note_id)
+        )
+        self.connection.commit()
+
+    def clear_reminder(self, note_id: int):
+        self.connection.execute(
+            "UPDATE notes SET reminder_datetime = NULL, repeat_rule = NULL WHERE id = ?",
+            (note_id,)
+        )
         self.connection.commit()
 
     def close(self):
