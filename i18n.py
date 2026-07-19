@@ -1,6 +1,6 @@
 TRANSLATIONS = {
     "ru": {
-        "window_title": "Заметки",
+        "window_title": "Simple ToDo List",
         "app_subtitle": "Твои задачи, под контролем",
         "btn_new": "Новая заметка",
         "btn_edit": "Редактировать",
@@ -24,9 +24,19 @@ TRANSLATIONS = {
         "created_prefix": "Создано",
         "dialog_view_title": "Просмотр заметки",
         "btn_close": "Закрыть",
+        "reminder_label": "Напоминание",
+        "repeat_label": "Повтор",
+        "repeat_none": "Без повтора",
+        "repeat_daily": "Ежедневно",
+        "repeat_weekly": "Еженедельно",
+        "repeat_monthly": "Ежемесячно",
+        "reminder_prefix": "Напоминание",
+        "tray_open": "Открыть",
+        "tray_exit": "Выход",
+        "tray_minimized_message": "Simple ToDo List свёрнут в трей!",
     },
     "en": {
-        "window_title": "Notes",
+        "window_title": "Simple ToDo List",
         "app_subtitle": "Your tasks, under control",
         "btn_new": "New note",
         "btn_edit": "Edit",
@@ -50,11 +60,20 @@ TRANSLATIONS = {
         "created_prefix": "Created",
         "dialog_view_title": "View note",
         "btn_close": "Close",
+        "reminder_label": "Reminder",
+        "repeat_label": "Repeat",
+        "repeat_none": "No repeat",
+        "repeat_daily": "Daily",
+        "repeat_weekly": "Weekly",
+        "repeat_monthly": "Monthly",
+        "reminder_prefix": "Reminder",
+        "tray_open": "Open",
+        "tray_exit": "Exit",
+        "tray_minimized_message": "Simple ToDo List minimized to tray!",
     },
 }
 
 class Translator:
-    """Простой переводчик по ключам, без внешних зависимостей (без Qt Linguist)."""
     def __init__(self, language: str = "ru"):
         self.language = language
 
