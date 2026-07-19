@@ -1,121 +1,65 @@
 # Simple ToDo List
 
-Desktop приложение для заметок на PyQt6 с тёмной темой и переключением языка интерфейса (русский / английский). Заметки хранятся в локальной базе SQLite - создание, редактирование и удаление сразу пишутся в файл базы, никакого облака и синхронизации.
+Desktop notes application built with PyQt6, featuring a dark theme and interface language switching (Russian / English). Notes are stored in a local SQLite database - creating, editing, and deleting are written straight to the database file, with no cloud or syncing involved.
 
-# Как это работает
+# How it works
 
-1. **Запуск.** При старте приложение подключается к файлу `notes.db` (создаётся автоматически рядом с `database.py`, если ещё не существует) и поднимает главное окно со списком заметок.
+1. **Launch.** On startup, the application connects to the `notes.db` file (created automatically next to `database.py` if it doesn't exist yet) and opens the main window with the list of notes.
 
-2. **Список заметок.** Заметки отображаются карточками - заголовок и отметка о дате. Если заметку ещё ни разу не редактировали, показывается «Создано: ...»; как только в неё внесли правку - отметка меняется на «Изменено: ...» с новым временем.
+2. **Notes list.** Notes are displayed as cards - a title and a date stamp. If a note has never been edited, it shows "Created: ..."; as soon as it's edited, the stamp changes to "Updated: ..." with the new time. If a note has a reminder enabled, the time of its next trigger is shown alongside it.
 
-3. **Создание.** Кнопка «Новая заметка» открывает диалог с полями заголовка и содержимого. Пустой заголовок не сохраняется - выводится предупреждение.
+3. **Creating.** The "New note" button opens a dialog with title and content fields. An empty title isn't saved - a warning is shown instead.
 
-4. **Просмотр.** Двойной клик по заметке в списке открывает окно только для чтения - полный текст и даты создания/изменения, без риска случайно что-то стереть.
+4. **Viewing.** Double-clicking a note in the list opens a read-only window - the full text and the creation/update dates, with no risk of accidentally erasing something.
 
-5. **Редактирование.** Кнопка «Редактировать» открывает тот же диалог, что и создание, но с уже заполненными полями. Сохранение обновляет запись в базе и дату изменения.
+5. **Editing.** The "Edit" button opens the same dialog as creation, but pre-filled. Saving updates the record in the database along with the update date.
 
-6. **Удаление.** Кнопка «Удалить» запрашивает подтверждение (действие необратимо) и убирает запись из базы.
+6. **Deleting.** The "Delete" button asks for confirmation (the action is irreversible) and removes the record from the database.
 
-7. **Смена языка.** Переключатель в правом верхнем углу меняет весь интерфейс налету - подписи кнопок, заголовки диалогов и формат даты (`дд.мм.гггг` для русского, `гггг-мм-дд` для английского) - без перезапуска приложения.
+7. **Notifications.** When creating or editing a note, you can enable a reminder, set an exact date and time, and choose a repeat - no repeat, daily, weekly, or monthly. The application checks for due reminders every 30 seconds and shows a system notification through the tray. If a repeat is set, the time is automatically moved to the next trigger; if there's no repeat, the reminder is cleared after the first notification.
 
-# Структура
+8. **Language switching.** The switcher in the top-right corner changes the entire interface on the fly - button labels, dialog titles, and the date format (`dd.mm.yyyy` for Russian, `yyyy-mm-dd` for English) - without restarting the application.
+
+9. **Minimize to tray.** Closing the window (the X button, Alt+F4) doesn't quit the application - it minimizes it to the tray with a "Simple ToDo List minimized to tray!" notification, and the background reminder check keeps running. Clicking the tray icon restores the window; right-clicking opens an "Open" / "Exit" menu - only "Exit" actually closes the application.
+
+# Structure
 
 Simple ToDo List/
 
-├── main.py            # Точка входа: создаёт приложение, применяет тёмную тему, показывает окно
+├── main.py            # Entry point: creates the application, applies the dark theme, shows the window
 
-├── main_window.py       # Главное окно: список заметок, кнопки действий, переключатель языка
+├── main_window.py       # Main window: notes list, action buttons, language switcher
 
-├── note_dialog.py         # Диалоги создания/редактирования и просмотра заметки
+├── note_dialog.py         # Create/edit dialog (with reminder fields) and the note view dialog
 
-├── database.py             # Вся работа с SQLite: создание таблицы, CRUD-операции
+├── notifications.py         # Checking due reminders and system notifications through the tray
 
-├── i18n.py                  # Тексты интерфейса на русском и английском
+├── resources.py               # Path to the app icon (works when running from a packaged exe too)
 
-├── styles.py                 # Тёмная тема оформления (QSS)
+├── logo.ico                     # Window and tray icon
 
-├── requirements.txt            # Список зависимостей Python
+├── database.py             # All SQLite work: table creation, CRUD operations, reminders
 
-└── notes.db                     # Создаётся автоматически после первого запуска
+├── i18n.py                  # Interface texts in Russian and English
 
-# Установка
+├── styles.py                 # Dark theme styling (QSS)
 
-Проекту нужен **Python 3.10 или новее**.
+├── requirements.txt            # Python dependency list
 
-Не забывайте перед запуском активировать **окружение** в папке с проектом! (venv\Scripts\activate для Windows, source venv/bin/activate для Linux, macOS)
+├── LICENSE                       # MIT license text
 
-# Windows
+└── notes.db                     # Created automatically after the first run
 
-1. Скачайте и установите Python с [python.org](https://www.python.org/downloads/) - при установке обязательно поставьте галочку **"Add python.exe to PATH"**.
+# Installation (Windows)
 
-2. Откройте PowerShell или CMD в папке проекта и создайте виртуальное окружение:
+1. Install the exe file.
 
-   - python -m venv venv
+2. Run the program.
 
-   - venv\Scripts\activate
+# Important note
 
-3. Установите зависимости:
+If you find a bug, be sure to let the author know!
 
-   - pip install -r requirements.txt
+MIT License - please credit the author.
 
-4. Запустите приложение:
-
-   - python main.py
-
-# Linux (Ubuntu, Debian Based)
-
-1. Установите Python и pip:
-
-   - sudo apt update
-
-   - sudo apt install python3 python3-venv python3-pip
-
-2. Перейдите в папку проекта и создайте виртуальное окружение:
-
-   - python3 -m venv venv
-
-   - source venv/bin/activate
-
-3. Установите зависимости:
-
-   - pip install -r requirements.txt
-
-4. Запустите приложение:
-
-   - python3 main.py
-
-# macOS
-
-1. Установите Python через [Homebrew](https://brew.sh/):
-
-   - brew install python
-
-2. Перейдите в папку проекта и создайте виртуальное окружение:
-
-   - python3 -m venv venv
-
-   - source venv/bin/activate
-
-3. Установите зависимости:
-
-   - pip install -r requirements.txt
-
-4. Запустите приложение:
-
-   - python3 main.py
-
-# Схема базы данных
-
-Таблица `notes` уже содержит nullable-поля `reminder_datetime` и `repeat_rule`, которые пока нигде в интерфейсе не используются. Они заложены заранее под будущую систему напоминаний (дата, день недели, повтор) - чтобы не пришлось делать `ALTER TABLE` на уже заполненной базе, когда эта функция появится.
-
-# Важное замечание
-
-Приложение работает полностью локально и не требует подключения к интернету. Файл `notes.db` - единственное хранилище данных; при переносе приложения на другой компьютер достаточно скопировать этот файл рядом с остальными.
-
-# Важная информация
-
-Если вы нашли баг, обязательно сообщите о нём автору!
-
-MIT License - указывайте автора.
-
-Автор - Ch1zheo
+Author - Ch1zheo
