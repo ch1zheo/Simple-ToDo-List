@@ -151,6 +151,52 @@ QLineEdit:focus, QTextEdit:focus {
     border: 1px solid #7aa2f7;
 }
 
+QCheckBox {
+    spacing: 8px;
+}
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #2b2e42;
+    border-radius: 4px;
+    background-color: #1a1b26;
+}
+QCheckBox::indicator:checked {
+    background-color: #7aa2f7;
+    border: 1px solid #7aa2f7;
+}
+
+QDateTimeEdit {
+    background-color: #1a1b26;
+    border: 1px solid #2b2e42;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+QDateTimeEdit:focus {
+    border: 1px solid #7aa2f7;
+}
+QDateTimeEdit::drop-down {
+    border: none;
+    width: 20px;
+}
+QDateTimeEdit:disabled, QComboBox:disabled {
+    color: #565f89;
+    border: 1px solid #23253a;
+}
+QCalendarWidget {
+    background-color: #1a1b26;
+}
+QCalendarWidget QToolButton {
+    color: #c0caf5;
+    background-color: transparent;
+}
+QCalendarWidget QAbstractItemView:enabled {
+    background-color: #1a1b26;
+    color: #c0caf5;
+    selection-background-color: #7aa2f7;
+    selection-color: #16171f;
+}
+
 QStatusBar {
     color: #565f89;
     font-size: 11px;
